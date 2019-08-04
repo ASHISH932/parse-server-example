@@ -1,0 +1,154 @@
+# Default values for node.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+image:
+  name: xwiki
+  pullPolicy: IfNotPresent
+## Image Tag useful when externalDB is been used
+  tag: ''
+service:
+  portName: node
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 8080
+resources:
+  limits:
+    cpu: 350m
+    memory: 1000Mi
+  requests:
+    cpu: 150m
+    memory: 250Mi
+
+## Read about PostDistribution budget at https://kubernetes.io/docs/concepts/workloads/pods/disruptions/
+## Use only on a clustered setup
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  # maxUnavailable: 1
+
+##
+## MySql chart configuration
+##
+## https://github.com/helm/charts/tree/master/stable/mysql
+##
+mysql:
+ ## Whether to deploy a mysql server. Set false for a different database.
+  enabled: false
+  mysqlRootPassword: xwiki
+  mysqlUser: xwiki
+  mysqlPassword: xwiki
+  mysqlDatabase: xwiki
+  imageTag: 5.7
+
+##
+## MySql chart configuration
+##
+## https://github.com/helm/charts/tree/master/stable/postgresql
+##
+postgresql:
+ ## Whether to deploy a postgresql server. Set false for a different database.
+  enabled: true
+  postgresqlUsername: xwiki
+  postgresqlPassword: xwiki
+  postgresqlDatabase: xwiki
+  image:
+    tag: 11.3.0-debian-9-r38
+
+##
+## For custom mysql and postgres database. Use externalDB. 
+## Would be used only if postgres and mysql is disabled.
+## Set the image tag if want to use externalDB
+##
+externalDB:
+  password: ''
+  user: ''
+  database: ''
+  host: ''
+
+ingress:
+  enabled: true
+  issuer: dev-issuer
+  annotations:
+    kubernetes.io/ingress.class: nginx
+storage: "1Gi"
+storageClassName: "my-storage-class"
+buildID: "123"
+
+
+
+## Prometheus Exporter / Metrics
+##
+metrics:
+  enabled: false
+
+  image:
+    registry: docker.io
+    repository: forekshub/percona-mongodb-exporter
+    tag: latest
+    pullPolicy: Always
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ##
+    # pullSecrets:
+    #   - myRegistryKeySecretName
+
+  ## String with extra arguments to the metrics exporter
+  ## ref: https://github.com/dcu/mongodb_exporter/blob/master/mongodb_exporter.go
+  extraArgs: ""
+
+  ## Metrics exporter resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+  # resources: {}
+
+  ## Metrics exporter liveness and readiness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes)
+  livenessProbe:
+    enabled: false
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  readinessProbe:
+    enabled: false
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 1
+    failureThreshold: 3
+    successThreshold: 1
+
+  ## Metrics exporter pod Annotation
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9216"
+
+  ## Prometheus Service Monitor
+  ## ref: https://github.com/coreos/prometheus-operator
+  ##      https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md
+  serviceMonitor:
+    ## If the operator is installed in your cluster, set to true to create a Service Monitor Entry
+    enabled: false
+
+    ## Specify a namespace if needed
+    # namespace: monitoring
+
+    ## Used to pass Labels that are used by the Prometheus installed in your cluster to select Service Monitors to work with
+    ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
+    additionalLabels: {}
+
+    ## Specify Metric Relabellings to add to the scrape endpoint
+    ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
+    # relabellings:
+
+    alerting:
+      ## Define individual alerting rules as required
+      ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#rulegroup
+      ##      https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
+      rules: {}
+
+      ## Used to pass Labels that are used by the Prometheus installed in your cluster to select Prometheus Rules to work with
+      ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
+      additionalLabels: {}
