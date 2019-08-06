@@ -14,7 +14,10 @@
     "javascript-obfuscator": "^0.18.1",
     "kerberos": "~0.0.x",
     "parse": "~1.8.0",
-    "parse-server": "*"
+    "parse-server": "*",
+    "prom-client": "^11.5.3",
+    "prometheus-gc-stats": "^0.6.2",
+    "response-time": "^2.3.2"
   },
   "scripts": {
     "start": "node index.js"

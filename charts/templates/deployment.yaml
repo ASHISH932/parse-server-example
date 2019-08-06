@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ template "fullname" . }}
   labels:
-    app: {{ .Values.image.name }}-{{ .Chart.AppVersion }}-{{ .Values.image.tag }}
+    app: {{ .Values.image.name | replace "/" "_"  }}-{{ .Chart.AppVersion }}-{{ .Values.image.tag }}
     version: "{{ .Chart.AppVersion }}"
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 spec:  
@@ -16,8 +16,20 @@ spec:
     metadata:
       labels:
         app: {{ template "fullname" . }}
+      annotations:
+{{- if .Values.podAnnotations }}
+{{ toYaml .Values.podAnnotations | indent 8 }}
+{{- end }}
+{{- if .Values.metrics.enabled }}
+{{ toYaml .Values.metrics.podAnnotations | indent 8 }}
+{{- end }}
+    # {{- if .Values.metrics.enabled }}
+    #     prometheus.io/scrape: {{ .Values.metrics.podAnnotations.scrape }}
+    #     prometheus.io/port: {{ .Values.metrics.podAnnotations.port }}
+    # {{- end }}
     spec:
       containers:
+      - name: {{ template "fullname" . }}
         image: {{ .Values.image.name }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
@@ -26,7 +38,7 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Release.Name | quote }}
+              name: {{ template "fullname" . }}
               key: DB_PASSWORD
         - name: DB_HOST
           valueFrom:
@@ -38,13 +50,15 @@ spec:
             configMapKeyRef:
               name: {{ template "fullname" . }}
               key: DB_USER
-        - name: DB_NAME
+        - name: DATABASE_URI
           valueFrom:
             configMapKeyRef:
               name: {{ template "fullname" . }}
-              key: DB_NAME
+              key: DATABASE_URI
         - name: DB_SERVICE_NAME
           valueFrom:
             configMapKeyRef:
               name: {{ template "fullname" . }}
               key: DB_SERVICE_NAME
+        resources:
+{{ toYaml .Values.resources | indent 12 }}

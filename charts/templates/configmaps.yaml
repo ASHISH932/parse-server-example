@@ -11,7 +11,8 @@ data:
   DB_USER: {{ .Values.db.user | quote }}
   DB_HOST: "{{ .Release.Name }}-mongo"
   DB_SERVICE_NAME: {{ .Values.db.serviceName | quote }}
-  DB_NAME: {{ .Valus.db.name | quote }}
+  DB_NAME: {{ .Values.db.name | quote }}
+  DATABASE_URI: "mongodb://{{ .Release.Name }}-mongodb:27017/dev"
 # {{- range $key, $value := .Values.database }}
 #   {{ $key }}: {{ $value | indent 4 }}
 # {{- end }}

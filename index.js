@@ -5,7 +5,9 @@ var express = require('express');
 var ParseServer = require('parse-server').ParseServer;
 var path = require('path');
 
+
 var databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI;
+console.log("databaseUri "+ databaseUri);
 
 if (!databaseUri) {
   console.log('DATABASE_URI not specified, falling back to localhost.');
@@ -33,6 +35,16 @@ app.use('/public', express.static(path.join(__dirname, '/public')));
 // Serve the Parse API on the /parse URL prefix
 var mountPath = process.env.PARSE_MOUNT || '/parse';
 app.use(mountPath, api);
+
+// Initialize Prometheus exporter
+const prom = require('prom-client')
+const prom_gc = require('prometheus-gc-stats')
+prom_gc()
+
+// Export Prometheus metrics from /metrics endpoint
+app.get('/metrics', function(req, res) {
+  res.end(prom.register.metrics());
+  });
 
 // Parse Server plays nicely with the rest of your web routes
 app.get('/', function(req, res) {
