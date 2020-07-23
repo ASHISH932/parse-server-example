@@ -13,7 +13,7 @@
     "fs": "0.0.1-security",
     "javascript-obfuscator": "^0.18.1",
     "kerberos": "~0.0.x",
-    "parse": "~1.8.0",
+    "parse": "~2.10.0",
     "parse-server": "*",
     "prom-client": "^11.5.3",
     "prometheus-gc-stats": "^0.6.2",
