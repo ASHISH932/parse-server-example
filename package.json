@@ -9,7 +9,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "express": "~4.11.x",
+    "express": "~4.17.x",
     "fs": "0.0.1-security",
     "javascript-obfuscator": "^0.18.1",
     "kerberos": "~0.0.x",
